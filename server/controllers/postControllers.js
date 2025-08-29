@@ -11,10 +11,20 @@ const getPosts = async (req, res) => {
   }
 };
 
-// ✅ Add a new movie
+// ✅ Add a new movie (with Cloudinary image/video)
 const postPosts = async (req, res) => {
   try {
-    const addmovie = new movieData(req.body);
+    const { movie_name, movie_desc, director_name, release_date } = req.body;
+
+    const addmovie = new movieData({
+      movie_name,
+      movie_desc,
+      director_name,
+      release_date,
+      movie_image: req.files?.image ? req.files.image[0].path : null,  // ✅ Cloudinary image URL
+      movie_video: req.files?.video ? req.files.video[0].path : null   // ✅ Cloudinary video URL
+    });
+
     await addmovie.save();
     res.status(201).json({ message: "Movie added successfully", data: addmovie });
   } catch (err) {
@@ -36,12 +46,22 @@ const getidPosts = async (req, res) => {
   }
 };
 
-// ✅ Update movie by ID
+// ✅ Update movie by ID (update + reupload image/video if provided)
 const updatePosts = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedMovie = await movieData.findByIdAndUpdate(id, req.body, { new: true });
+
+    const updateData = {
+      ...req.body,
+    };
+
+    if (req.files?.image) updateData.movie_image = req.files.image[0].path;
+    if (req.files?.video) updateData.movie_video = req.files.video[0].path;
+
+    const updatedMovie = await movieData.findByIdAndUpdate(id, updateData, { new: true });
+
     if (!updatedMovie) return res.status(404).json({ message: "Movie not found" });
+
     res.status(200).json({ message: "Movie updated successfully", data: updatedMovie });
   } catch (err) {
     console.error("Error:", err.message);

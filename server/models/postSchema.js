@@ -19,8 +19,16 @@ const movieSchema = new mongoose.Schema(
       trim: true
     },
     release_date: {
-      type: Date,   // ✅ Correct type for "yy-mm-dd"
+      type: Date,
       required: true
+    },
+    movie_image: {   // ✅ Image URL (Cloudinary / uploads folder)
+      type: String,
+      required: false
+    },
+    movie_video: {   // ✅ Video URL
+      type: String,
+      required: false
     }
   },
   { timestamps: true }
